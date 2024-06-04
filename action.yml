@@ -1,0 +1,35 @@
+name: Setup SSH client
+
+description: Sets up everything required for connecting to an SSH server from a GitHub Actions runner
+
+inputs:
+  ssh-key:
+    description: The client's SSH private key
+    required: true
+  known-hosts:
+    description: Keys for the known_hosts file (these are appended to the file)
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Make sure SSH directory exists
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+
+    - name: Create the SSH key file
+      shell: bash
+      run: |
+        touch ~/.ssh/id_rsa
+        echo "${{ inputs.ssh-key }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: Append to the known_hosts file
+      if: inputs.known-hosts
+      shell: bash
+      run: |
+        touch ~/.ssh/known_hosts
+        echo "${{ inputs.known-hosts }}" >> ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
